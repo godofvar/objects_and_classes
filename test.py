@@ -47,6 +47,15 @@ class Mentor:
 
     def __str__(self):
         return f'Имя: {self.name}' + '\n' + f'Фамилия: {self.surname}'
+    
+    def rate_hw(self, student, course, grade):
+        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
+            if course in student.grades:
+                student.grades[course] += [grade]
+            else:
+                student.grades[course] = [grade]
+        else:
+            return 'Ошибка'
 
 class Lecturer(Mentor):
     def __init__(self, name, surname):
@@ -72,23 +81,61 @@ class Reviewer(Mentor):
     def __str__(self):
         return f'Имя: {self.name}' + '\n' + f'Фамилия: {self.surname}'
 
-    def rate_hw(self, student, course, grade):
-        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
-            if course in student.grades:
-                student.grades[course] += [grade]
-            else:
-                student.grades[course] = [grade]
-        else:
-            return 'Ошибка'
+def count_avg_hw(students, course):
+    """ 
+    Allows to count average mark of different students. 
+    Requires list of students and name of course
+    """
+    marks = []
+    for student in students:
+        marks += student.grades[course]
+    return round(sum(marks) / len(marks), 2)
 
-best_student = Student('Ruoy', 'Eman', 'your_gender')
-best_student.courses_in_progress += ['Python']
- 
-reviewer = Reviewer('Some', 'Buddy')
-reviewer.courses_attached += ['Python']
+def count_avg_lecture(lectures, course):
+    """ 
+    Allows to count average mark of different lectures. 
+    Requires list of lectures and name of course
+    """    
+    marks = []
+    for lecture in lectures:
+        marks += lecture.grades[course]
+    return round(sum(marks) / len(marks), 2)
 
-reviewer.rate_hw(best_student, 'Python', 10)
-reviewer.rate_hw(best_student, 'Python', 10)
-reviewer.rate_hw(best_student, 'Python', 10)
- 
-print(best_student.grades)
+if __name__ == '__main__':
+    student1 = Student('Kirill', 'Student1', 'male')
+    student2 = Student('Igor', 'Student2', 'male')
+    student1.courses_in_progress += ['Python']
+    student2.courses_in_progress += ['Python']
+
+    reviewer = Reviewer('Some', 'Buddy')
+    reviewer.courses_attached += ['Python']
+
+    reviewer.rate_hw(student1, 'Python', 10)
+    reviewer.rate_hw(student1, 'Python', 9)
+    reviewer.rate_hw(student1, 'Python', 9)
+    reviewer.rate_hw(student2, 'Python', 8)
+    reviewer.rate_hw(student2, 'Python', 9)
+    reviewer.rate_hw(student2, 'Python', 10)
+
+    lecturer1 = Lecturer('Oleg', 'Lecturer1')
+    lecturer2 = Lecturer('Elena', 'Lecturer2')
+    lecturer1.courses_attached += ['Python']
+    lecturer2.courses_attached += ['Python']
+
+    student1.rate_lecturer(lecturer1, 'Python', 10)
+    student1.rate_lecturer(lecturer1, 'Python', 9)
+    student1.rate_lecturer(lecturer1, 'Python', 9)
+    student2.rate_lecturer(lecturer2, 'Python', 8)
+    student2.rate_lecturer(lecturer2, 'Python', 9)
+    student2.rate_lecturer(lecturer2, 'Python', 10)
+
+    print(student1)
+    print(student2)
+    print(reviewer)
+    print(lecturer1)
+    print(lecturer2)
+    print(student1 > student2)
+    print(lecturer1 > lecturer2)
+
+    print(count_avg_hw([student1, student2], 'Python'))
+    print(count_avg_hw([lecturer1, lecturer2], 'Python'))
